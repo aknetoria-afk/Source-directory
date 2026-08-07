@@ -83,17 +83,45 @@ var ALLOWED_DOMAINS = [
   'dius-mfk.ru',
 ];
 
+/**
+ * Кириллические/человекочитаемые алиасы доменов -> их канонический punycode-адрес.
+ * Добавляйте сюда новые пары, если появятся другие кириллические варианты написания.
+ */
+var CYRILLIC_DOMAIN_ALIASES = {
+  'эхолеса.рф': 'xn--80ajrlru9c.xn--p1ai',
+};
+
 function extractHost(url) {
   var m = String(url).match(/^https?:\/\/([^\/]+)/i);
   if (!m) return null;
   return m[1].toLowerCase().replace(/^www\./, '');
 }
 
+/**
+ * Приводит введённый пользователем адрес к полноценному URL:
+ * - добавляет "https://", если протокол не указан
+ * - заменяет кириллический алиас домена на его punycode-эквивалент
+ */
+function normalizeUrl(input) {
+  var url = String(input || '').trim();
+  if (!url) return '';
+  if (!/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
+  }
+  var host = extractHost(url);
+  if (host && CYRILLIC_DOMAIN_ALIASES[host]) {
+    url = url.replace(host, CYRILLIC_DOMAIN_ALIASES[host]);
+  }
+  return url;
+}
+
 function isAllowedDomain(url) {
   var host = extractHost(url);
   if (!host) return false;
   return ALLOWED_DOMAINS.some(function (d) {
-    return host === d || host.indexOf('.' + d) === host.length - d.length - 1;
+    if (host === d) return true;
+    var suffix = '.' + d;
+    return host.length > suffix.length && host.slice(host.length - suffix.length) === suffix;
   });
 }
 
@@ -117,6 +145,10 @@ function buildUrlWithUtm(urlBase, utmSource, utmMedium, utmCampaign, utmTerm) {
  */
 function processSubmission(payload) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // 0. Приводим URL к полному виду: добавляем https://, если не указан протокол,
+  // и заменяем кириллический алиас домена на канонический punycode-адрес
+  payload.urlBase = normalizeUrl(payload.urlBase);
 
   // 1. Проверка домена — если не из разрешённого списка, дальше не идём
   if (!isAllowedDomain(payload.urlBase)) {
