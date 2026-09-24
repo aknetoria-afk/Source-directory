@@ -2,49 +2,216 @@
 <html>
 <head>
   <base target="_top">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
   <style>
-    body { font-family: Arial, sans-serif; max-width: 560px; margin: 24px auto; padding: 0 16px; }
-    h2 { font-size: 18px; margin-bottom: 4px; }
-    p.hint { color: #666; font-size: 13px; margin-top: 0; }
-    label { display: block; margin-top: 14px; font-size: 13px; font-weight: bold; color: #333; }
-    select, input { width: 100%; box-sizing: border-box; padding: 8px; margin-top: 4px; font-size: 14px; }
-    small { color: #888; }
-    button { margin-top: 20px; padding: 10px 16px; font-size: 14px; background: #1a73e8; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #1558b0; }
-    button:disabled { background: #aaa; cursor: default; }
-    #result { margin-top: 20px; padding: 12px; background: #eafaf0; border: 1px solid #34a853; border-radius: 4px; word-break: break-all; font-size: 13px; display: none; }
-    #copyBtn { margin-top: 8px; background: #34a853; }
-    #err { color: #c00; font-size: 13px; margin-top: 10px; padding: 10px; background: #fdecea; border-radius: 4px; display: none; }
-    #loading { font-size: 13px; color: #666; display: none; margin-top: 10px; }
+    :root {
+      --navy: #16293D;
+      --navy-header: #14293B;
+      --navy-card: #1E374E;
+      --navy-input: #14293B;
+      --border: #2C4560;
+      --accent: #2CB6D1;
+      --accent-dark: #0B1620;
+      --teal: #10E1B5;
+      --pink: #F23FA8;
+      --text: #FFFFFF;
+      --text-label: #C7D6E3;
+      --text-muted: #8FA6BC;
+      --text-faint: #7C93A8;
+    }
+    body { font-family: 'IBM Plex Sans', sans-serif; margin: 0; padding: 0; background: var(--navy); color: var(--text); }
+    .app-body { max-width: 560px; margin: 0 auto; padding: 0 16px 32px 16px; }
+    .app-header { background: radial-gradient(circle at 88% 10%, rgba(242,63,168,0.6) 0%, rgba(242,63,168,0) 55%), radial-gradient(circle at 10% 95%, rgba(16,225,181,0.5) 0%, rgba(16,225,181,0) 55%), var(--navy-header); padding: 28px 0 24px 0; margin-bottom: 8px; box-sizing: border-box; }
+    .app-header-inner { max-width: 560px; margin: 0 auto; padding: 0 16px 0 0; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; }
+    .help-icon-btn { width: 34px; height: 34px; min-width: 34px; margin: 0; padding: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.12); color: #FFFFFF; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .help-icon-btn:hover { background: rgba(255,255,255,0.25); }
+    .app-header-right { display: flex; align-items: center; gap: 10px; }
+    .app-header-title { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; color: #FFFFFF; white-space: nowrap; }
+    .app-header img { height: 32px; object-fit: contain; }
+    h2 { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 21px; margin: 20px 0 2px 0; color: var(--text); }
+    p.hint { color: var(--text-muted); font-size: 13px; margin-top: 0; }
+    label { display: block; margin-top: 14px; font-size: 12px; font-weight: 600; color: var(--text-label); }
+    select, input { width: 100%; box-sizing: border-box; padding: 0 12px; height: 42px; margin-top: 6px; font-size: 14px; font-family: 'IBM Plex Sans', sans-serif; background: var(--navy-card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; }
+    select option { background: #FFFFFF; color: #16293D; }
+    select:focus, input:focus { outline: none; border-color: var(--accent); }
+    ::placeholder { color: var(--text-faint); }
+    small { color: var(--text-faint); }
+    button { margin-top: 20px; padding: 0 16px; height: 46px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; background: var(--accent); color: var(--accent-dark); border: none; border-radius: 8px; cursor: pointer; width: 100%; }
+    button:hover { background: var(--teal); }
+    button:disabled { background: var(--border); color: var(--text-faint); cursor: default; }
+    #result { margin-top: 20px; padding: 14px 16px; background: rgba(16,225,181,0.12); border: 1px solid var(--teal); border-radius: 8px; word-break: break-all; font-size: 13px; display: none; color: var(--text); }
+    #copyBtn { margin-top: 10px; background: var(--teal); }
+    #err { color: var(--pink); font-size: 13px; margin-top: 10px; padding: 10px; background: rgba(242,63,168,0.12); border: 1px solid var(--pink); border-radius: 8px; display: none; }
+    #loading { font-size: 13px; color: var(--text-muted); display: none; margin-top: 10px; }
+    .field-row { display: flex; gap: 6px; align-items: center; }
+    .field-row select { margin-top: 4px; }
+    .lookup-btn-wide { width: 100%; margin-top: 20px; padding: 0 16px; height: 44px; font-size: 13px; font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; background: transparent; color: var(--text-label); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+    .lookup-btn-wide:hover { background: rgba(44,182,209,0.12); border-color: var(--accent); color: var(--text); }
+    .lookup-btn-wide:disabled { opacity: 0.5; cursor: default; }
+    #searchResults { display: none; margin-top: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--navy-header); }
+    .sr-header { padding: 8px 10px; font-size: 13px; font-weight: 600; background: var(--navy-card); border-radius: 8px 8px 0 0; position: relative; color: var(--text-label); }
+    .sr-close { position: absolute; right: 10px; top: 6px; cursor: pointer; font-size: 16px; color: var(--text-faint); }
+    .sr-close:hover { color: var(--text); }
+    .sr-table { width: 100%; border-collapse: collapse; font-size: 12px; max-height: 220px; color: var(--text-label); }
+    .sr-table th, .sr-table td { padding: 5px 6px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    .sr-table th { background: var(--navy-card); position: sticky; top: 0; color: var(--text-muted); }
+    .sr-url { max-width: 220px; overflow-wrap: anywhere; }
+    .sr-cell-value { display: inline; }
+    .copy-cell-btn { margin-left: 4px; padding: 1px 4px; font-size: 11px; background: none; border: 1px solid var(--border); border-radius: 3px; cursor: pointer; vertical-align: middle; color: var(--text-label); }
+    .copy-cell-btn:hover { background: var(--navy-card); border-color: var(--accent); }
+    .field-highlight { border-left: 3px solid var(--accent); background: rgba(44,182,209,0.12); padding: 10px 12px; border-radius: 8px; margin-top: 10px; }
+    .field-highlight label { margin-top: 6px; }
+    .field-highlight input { background: var(--navy-input); }
+    .field-dimmed label, .field-dimmed input, .field-dimmed select { opacity: 0.5; }
+    .field-dimmed small { color: var(--accent); opacity: 1; font-weight: bold; }
+    .guide-panel { display: none; margin-top: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--navy-header); max-height: 360px; overflow-y: auto; }
+    .guide-body { padding: 6px 14px 12px 14px; font-size: 13px; line-height: 1.4; color: var(--text-label); }
+    .guide-body ol { margin: 4px 0 10px 20px; padding: 0; }
+    .guide-body li { margin-bottom: 4px; }
+    .guide-body code { background: var(--navy-card); padding: 1px 4px; border-radius: 3px; color: var(--teal); }
+    #searchResults > table { display: block; max-height: 220px; overflow-y: auto; }
+    #structureTree { display: none; margin-top: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--navy-header); max-height: 340px; overflow-y: auto; }
+    .tree-header { padding: 8px 10px; font-size: 13px; font-weight: 600; background: var(--navy-card); border-radius: 8px 8px 0 0; position: sticky; top: 0; color: var(--text-label); }
+    .tree-body { padding: 6px 10px 10px 10px; }
+    .tree-body details { margin: 2px 0; }
+    .tree-body summary { cursor: pointer; font-size: 13px; padding: 3px 0; color: var(--text-label); }
+    .tree-body summary:hover { color: var(--accent); }
+    .tree-body > details { margin-left: 0; }
+    .tree-body details details { margin-left: 16px; }
+    .tree-leaf { font-size: 12px; color: var(--text-muted); padding: 2px 0 2px 16px; border-left: 1px dotted var(--border); margin-left: 4px; }
+    .tree-count { color: var(--text-faint); font-weight: normal; }
   </style>
 </head>
 <body>
-  <h2>Новая запись — Справочник источников</h2>
+  <div class="app-header">
+    <div class="app-header-inner">
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1399 479.9" style="height: 32px; width: auto; display: block;">
+      <path fill="#fff" d="M734.3,94.9c17.9,0,32.5,1.8,43.8,5.4s19.6,9.2,24.9,17c5.5,7.7,8.2,17.7,8.2,30s-2.5,20.8-7.6,28c-4.3,6.1-10.9,10.9-19.7,14.4.3.1.7.2,1,.3,11.3,3.4,19.5,8.7,24.6,15.8,5.1,7.2,7.6,16.6,7.6,28.3s-2.6,22.5-7.9,30.3-13.5,13.5-24.6,17.2c-10.9,3.8-25.1,5.7-42.4,5.7h-136.2c-16.2,0-29.3-13.1-29.3-29.3V124.2c0-16.2,13.1-29.3,29.3-29.3,0,0,128.3,0,128.3,0ZM462.2,94.9c23.7,0,43,19.2,43,43h-164v33.4h120.5v39.6h-120.5v33.4h167.7c0,23.7-19.2,43-43,43h-146.4c-16.2,0-29.3-13.1-29.3-29.3V124.2c0-16.2,13.1-29.3,29.3-29.3h142.7ZM1057,94.9c23.8,0,43,19.2,43,43h-164v33.4h120.5v39.6h-120.5v33.4h167.7c0,23.7-19.2,43-43,43h-146.4c-16.2,0-29.3-13.1-29.3-29.3V124.2c0-16.2,13.1-29.3,29.3-29.3h142.7ZM1321.5,94.9c18.3,0,33.1,2.4,44.4,7.1s19.6,12,24.9,21.8c5.5,9.6,8.2,22.1,8.2,37.3s-2.7,27.8-8.2,37.6c-5.3,9.6-13.6,16.8-24.9,21.5s-26.1,7.1-44.4,7.1h-100.1v30.7c0,16.2-13.1,29.3-29.3,29.3h-21.7V124.2c0-16.2,13.1-29.3,29.3-29.3h121.8ZM627.7,245.6h135.8v-35.4h-135.8v35.4ZM1344.1,136.5c0,0-57.6,0-122.7,5.4v38.3c85.8,6.8,122.7,5.6,122.7,5.6v-49.2h0ZM627.7,170.7h129.8v-34.2h-129.8v34.2ZM107.8,90.9c17.9,0,36.2.4,54.9,1.1,4.6.1,9.2.3,13.9.5,26.1,1.1,46.5,26.4,47.5,52.4-41.7-4.5-79.9-7.4-114.8-8.8-18.3-.8-32.1-1.2-49.5-1.4v113.1c16.2-.2,30-.7,49.5-1.4,41.9-1.7,80.6-4.6,116.2-8.8-1,26.1-21.4,51.4-47.5,52.4-4.8.2-9.7.4-14.5.5-19.6.8-38.2,1.1-55.7,1.1-28.3,0-50.1-3-65.3-9-15.3-6.2-26.2-16.4-32.8-30.5C3.2,237.8,0,217.5,0,191.3s3.2-46.4,9.6-60.5c6.6-14.3,17.5-24.5,32.8-30.5,15.3-6.2,37-9.3,65.3-9.3h0s0,0,0,0ZM197.4,0C210,0,220.2,12.2,220.2,27.3v24.9s-37.7-11.4-107.2-11.4S5.8,52.3,5.8,52.3v-24.9C5.8,12.2,16,0,28.6,0h168.8,0Z"/>
+      <g>
+        <g>
+          <path fill="#fff" d="M203.2,478.7v-59.9l3.6,3.8h-25.7v-13h59.9v13h-25.7l3.6-3.8v59.9h-15.8,0Z"/>
+          <path fill="#fff" d="M261.1,478.7v-69.1h32.2c8,0,14.3,1.5,18.8,4.6,4.5,3.1,6.7,7.5,6.7,13.2s-2.1,10.1-6.4,13.2-9.8,4.7-16.7,4.7l1.9-4.1c7.7,0,13.7,1.5,18,4.6,4.3,3.1,6.4,7.6,6.4,13.4s-2.2,10.8-6.8,14.3-11.2,5.2-20,5.2h-34.1ZM276.9,438.2h15c3.4,0,6-.7,7.9-2.2s2.7-3.5,2.7-6.2-.9-4.9-2.7-6.3c-1.8-1.4-4.4-2.1-7.9-2.1h-15v16.8h0ZM276.9,466.9h17.7c3.7,0,6.5-.7,8.4-2.2,1.9-1.5,2.9-3.6,2.9-6.6s-1-5.2-2.9-6.6-4.7-2.1-8.4-2.1h-17.7v17.5h0Z"/>
+          <path fill="#fff" d="M377.7,479.9c-5.5,0-10.5-.9-15.1-2.7-4.6-1.8-8.6-4.3-12-7.5s-6.1-7-8-11.4-2.8-9.1-2.8-14.2.9-10,2.8-14.3,4.5-8.1,8-11.3,7.4-5.7,12-7.5c4.6-1.8,9.6-2.7,15.1-2.7s10.5.9,15.1,2.6c4.6,1.8,8.6,4.2,12,7.5s6.1,7,8,11.4,2.8,9.1,2.8,14.3-.9,9.9-2.8,14.3c-1.9,4.4-4.5,8.2-8,11.4s-7.4,5.7-12,7.5-9.6,2.6-15,2.6h0,0ZM377.6,466.4c3.1,0,5.9-.5,8.5-1.6,2.6-1.1,4.9-2.6,6.9-4.6,2-2,3.5-4.4,4.6-7s1.6-5.6,1.6-8.9-.5-6.3-1.6-8.9-2.6-5-4.6-7-4.3-3.5-6.9-4.6c-2.6-1.1-5.4-1.6-8.5-1.6s-6,.5-8.6,1.6c-2.6,1.1-4.9,2.6-6.9,4.6-1.9,2-3.5,4.4-4.5,7s-1.6,5.6-1.6,8.9.5,6.3,1.6,8.9,2.6,5,4.5,7c1.9,2,4.2,3.5,6.9,4.6,2.6,1.1,5.5,1.6,8.6,1.6Z"/>
+          <path fill="#fff" d="M437.6,478.7v-69.1h15.8v45.1l33.1-45.1h15v69.1h-15.8v-44.9l-33,44.9h-15.1,0,0ZM469.4,405.1c-6.5,0-11.2-1.3-14.3-4s-4.7-6.4-4.8-11.2h11c0,2.4.8,4.2,2.1,5.4,1.4,1.2,3.3,1.8,6,1.8s4.8-.6,6.2-1.8c1.4-1.2,2.1-3,2.1-5.4h10.9c0,4.8-1.5,8.5-4.6,11.2s-7.9,4-14.5,4h0Z"/>
+          <path fill="#fff" d="M599.5,479.9c-5.5,0-10.5-.9-15.1-2.7-4.6-1.8-8.6-4.3-12-7.5s-6.1-7-8-11.4-2.8-9.1-2.8-14.2.9-10,2.8-14.3,4.5-8.1,8-11.3,7.4-5.7,12-7.5c4.6-1.8,9.6-2.7,15.1-2.7s10.5.9,15.1,2.6c4.6,1.8,8.6,4.2,12,7.5s6.1,7,8,11.4,2.8,9.1,2.8,14.3-.9,9.9-2.8,14.3c-1.9,4.4-4.5,8.2-8,11.4s-7.4,5.7-12,7.5-9.6,2.6-15,2.6h0,0ZM599.4,466.4c3.1,0,5.9-.5,8.5-1.6,2.6-1.1,4.9-2.6,6.9-4.6,2-2,3.5-4.4,4.6-7s1.6-5.6,1.6-8.9-.5-6.3-1.6-8.9-2.6-5-4.6-7-4.3-3.5-6.9-4.6c-2.6-1.1-5.4-1.6-8.5-1.6s-6,.5-8.6,1.6c-2.6,1.1-4.9,2.6-6.9,4.6-1.9,2-3.5,4.4-4.5,7s-1.6,5.6-1.6,8.9.5,6.3,1.6,8.9,2.6,5,4.5,7c1.9,2,4.2,3.5,6.9,4.6,2.6,1.1,5.5,1.6,8.6,1.6Z"/>
+        </g>
+        <g>
+          <path fill="#fff" d="M659.4,478.7v-69.1h29.9c6.2,0,11.5,1,16,3,4.5,2,7.9,4.9,10.4,8.6,2.4,3.8,3.7,8.2,3.7,13.3s-1.2,9.7-3.7,13.4c-2.4,3.7-5.9,6.6-10.4,8.6-4.5,2-9.8,3.1-16,3.1h-21.1l7.3-7.2v26.3h-16.1ZM675.5,454.2l-7.3-7.6h20.2c4.9,0,8.6-1,11.1-3.2,2.5-2.1,3.8-5.1,3.8-8.9s-1.2-6.8-3.8-8.8-6.2-3.1-11.1-3.1h-20.2l7.3-7.6v39.2h0Z"/>
+        </g>
+        <g>
+          <path fill="#fff" d="M739.8,478.7v-69.1h15.8v45.1l33.1-45.1h15v69.1h-15.8v-44.9l-33,44.9h-15.1,0,0Z"/>
+          <path fill="#fff" d="M846.7,465.9h37.6v12.8h-53.5v-69.1h52.2v12.8h-36.3v43.5h0ZM845.5,437.3h33.3v12.5h-33.3v-12.5Z"/>
+          <path fill="#fff" d="M923.2,478.7h-16.1v-69.1h16.1v69.1ZM955.7,450.4h-33.8v-13.5h33.8v13.5ZM954.5,409.6h16v69.1h-16v-69.1Z"/>
+          <path fill="#fff" d="M1012.6,478.7v-59.9l3.7,3.8h-25.7v-13h60v13h-25.7l3.6-3.8v59.9h-15.8,0,0Z"/>
+          <path fill="#fff" d="M1070.5,478.7v-69.1h15.8v45.1l33.1-45.1h15v69.1h-15.8v-44.9l-33,44.9h-15.1,0Z"/>
+          <path fill="#fff" d="M1161.4,478.7v-69.1h29.9c6.2,0,11.5,1,16,3,4.5,2,7.9,4.9,10.4,8.6s3.7,8.2,3.7,13.3-1.2,9.7-3.7,13.4-5.9,6.6-10.4,8.6c-4.5,2-9.8,3.1-16,3.1h-21.1l7.3-7.2v26.3h-16.1ZM1177.6,454.2l-7.3-7.6h20.2c4.9,0,8.6-1,11.1-3.2,2.5-2.1,3.8-5.1,3.8-8.9s-1.2-6.8-3.8-8.8-6.2-3.1-11.1-3.1h-20.2l7.3-7.6v39.2h0Z"/>
+        </g>
+      </g>
+    </svg>
+    <div class="app-header-right">
+      <span class="app-header-title">Справочник источников</span>
+      <button type="button" class="help-icon-btn" onclick="toggleGuide()" title="Инструкция: как заполнять форму" aria-label="Инструкция: как заполнять форму">?</button>
+    </div>
+    </div>
+  </div>
+  <div class="app-body">
+  <h2>Новая запись</h2>
   <p class="hint">Строка добавится в конец вкладки "Справочник источников", Sources и Phones обновятся автоматически.</p>
+
+  <div id="guidePanel" class="guide-panel" style="display:none;">
+    <div class="sr-header">Короткая инструкция
+      <span class="sr-close" onclick="document.getElementById('guidePanel').style.display='none'">×</span>
+    </div>
+    <div class="guide-body">
+      <p><b>Сценарий 1 — UTM-ссылка (без телефона)</b></p>
+      <ol>
+        <li>Категория обращения — оставить «Без телефона (по ссылке)».</li>
+        <li>Раздел → Источник → Площадка — выбираются по цепочке, каждый следующий фильтруется предыдущим.</li>
+        <li>Если появилось поле 5a «Тип размещения» — у площадки несколько вариантов, выбрать нужный.</li>
+        <li>Проект — выбрать нужный проект.</li>
+        <li>URL — вставить ссылку (протокол можно не писать, только 5 доменов компании).</li>
+        <li>Ответственный за площадку (РА) — выбрать.</li>
+        <li>Кампания — одно слово латиницей, например <code>catalog</code>.</li>
+        <li>Нажать «Создать запись», скопировать готовую ссылку из результата.</li>
+      </ol>
+      <p><b>Сценарий 2 — Звонок (с телефоном)</b></p>
+      <ol>
+        <li>Категория обращения — переключить на «Звонки (по телефону)».</li>
+        <li>В появившемся синем блоке заполнить 2a «Телефон» и 2b «Проект в Колтач» (вручную).</li>
+        <li>Раздел → Источник → Площадка → Проект — так же, как в сценарии 1.</li>
+        <li>URL и Кампания — необязательны для звонков, можно оставить пустыми.</li>
+        <li>Ответственный за площадку (РА) — выбрать.</li>
+        <li>Нажать «Создать запись» — в результате будет присвоенный utm_term и телефон.</li>
+      </ol>
+      <p><b>Оба сценария:</b> новая запись попадает со статусом «На модерации» — не появится в отчётах, пока модератор не одобрит и не впишет её в Колтач.</p>
+    </div>
+  </div>
 
   <label>1. Тип обращения</label>
   <select id="tip"></select>
 
-  <label>2. Раздел</label>
+  <label>2. Категория обращения</label>
+  <select id="kategoria">
+    <option value="без телефона">Без телефона (по ссылке)</option>
+    <option value="Звонки">Звонки (по телефону)</option>
+  </select>
+
+  <div id="phoneWrap" class="field-highlight" style="display:none;">
+    <label>2a. Телефон</label>
+    <input id="phone" type="text" placeholder="79991234567">
+
+    <label>2b. Проект в Колтач</label>
+    <input id="proektKoltach" type="text" placeholder="Название проекта в Колтач">
+  </div>
+
+  <label>3. Раздел</label>
   <select id="razdel"></select>
 
-  <label>3. Источник обращения <small>(зависит от Раздела)</small></label>
+  <label>4. Источник обращения <small>(зависит от Раздела)</small></label>
   <select id="istochnik"></select>
 
-  <label>4. Площадка размещения <small>(зависит от Источника)</small></label>
+  <label>5. Площадка размещения <small>(зависит от Источника)</small></label>
   <select id="analitika"></select>
 
-  <label>5. Проект</label>
+  <div id="mediumWrap" style="display:none;">
+    <label>5a. Тип размещения <small>(у этой площадки несколько вариантов)</small></label>
+    <select id="utmMedium"></select>
+  </div>
+
+  <label>6. Проект</label>
   <select id="proekt"></select>
 
-  <label>6. URL <small>(только домены sever-group.ru, double-double.ru, literaturny.ru, xn--80ajrlru9c.xn--p1ai, dius-mfk.ru)</small></label>
-  <input id="urlBase" type="text" placeholder="https://sever-group.ru/...">
+  <div id="urlWrap">
+    <label>7. URL <small id="urlHint">(протокол можно не указывать; допустим также домен эхолеса.рф — домены: sever-group.ru, double-double.ru, literaturny.ru, эхолеса.рф, dius-mfk.ru)</small></label>
+    <input id="urlBase" type="text" placeholder="dius-mfk.ru/... или https://sever-group.ru/...">
+  </div>
 
-  <label>7. Ответственный за площадку (РА)</label>
+  <label>8. Ответственный за площадку (РА)</label>
   <select id="ra"></select>
 
-  <label>8. Кампания <small>(одно слово латиницей, без пробелов)</small></label>
-  <input id="campaignWord" type="text" placeholder="catalog">
+  <div id="campaignWrap">
+    <label>9. Кампания <small id="campaignHint">(одно слово латиницей: только буквы A-Z и цифры, без пробелов и разделителей)</small></label>
+    <input id="campaignWord" type="text" placeholder="catalog">
+  </div>
+
+  <label>10. Ответственный за utm-метку</label>
+  <select id="otvetstvenny">
+    <option value="">— не выбрано —</option>
+    <option>Копылова</option>
+    <option>Семенчук</option>
+    <option>Тишкова</option>
+    <option>Лучинкина</option>
+    <option>Дроздецкий</option>
+  </select>
+
+
+  <button id="openSheetBtn" type="button" class="lookup-btn-wide" onclick="openSourceSheet()">📊 Открыть Справочник источников (Google Таблица)</button>
+
+  <button id="lookupBtn" type="button" class="lookup-btn-wide" onclick="openInSource()">🔍 Посмотреть значения</button>
+  <div id="searchResults"></div>
+
+  <button id="structureBtn" type="button" class="lookup-btn-wide" onclick="toggleStructureTree()">🌳 Структура источников</button>
+  <div id="structureTree"></div>
 
   <button id="submitBtn" onclick="submitForm()">Создать запись</button>
   <div id="loading">Обрабатываю...</div>
@@ -52,13 +219,19 @@
   <div id="result">
     <div><b>utm_term:</b> <span id="rTerm"></span></div>
     <div><b>utm_campaign:</b> <span id="rCampaign"></span></div>
-    <div style="margin-top:8px;"><b>URL с UTM:</b></div>
-    <div id="rUrl"></div>
-    <button id="copyBtn" onclick="copyResult()">Скопировать ссылку</button>
+    <div id="rPhoneRow" style="margin-top:8px; display:none;"><b>Телефон:</b> <span id="rPhone"></span></div>
+    <div id="rUrlSection">
+      <div style="margin-top:8px;"><b>URL с UTM:</b></div>
+      <div id="rUrl"></div>
+      <button id="copyBtn" onclick="copyResult()">Скопировать ссылку</button>
+    </div>
+  </div>
   </div>
 
   <script>
     var GEN_DATA = null;
+
+    var PLACEHOLDER = '— не выбрано —';
 
     google.script.run.withSuccessHandler(function (data) {
       GEN_DATA = data;
@@ -67,24 +240,48 @@
       fillSimpleSelect('proekt', data.proekt.map(function (x) { return x.label; }));
       fillSimpleSelect('ra', data.ra.map(function (x) { return x.label; }));
 
-      refreshIstochnik();
-      refreshAnalitika();
+      // Источник и Площадка изначально пустые и заблокированы — появятся после выбора родителя
+      fillSimpleSelect('istochnik', []);
+      document.getElementById('istochnik').disabled = true;
+      fillSimpleSelect('analitika', []);
+      document.getElementById('analitika').disabled = true;
+
       document.getElementById('razdel').addEventListener('change', function () {
         refreshIstochnik();
         refreshAnalitika();
       });
       document.getElementById('istochnik').addEventListener('change', refreshAnalitika);
+      document.getElementById('analitika').addEventListener('change', refreshMedium);
+      document.getElementById('kategoria').addEventListener('change', refreshKategoria);
     }).withFailureHandler(showError).getGeneratorData();
+
+    function refreshKategoria() {
+      var isCall = document.getElementById('kategoria').value === 'Звонки';
+      document.getElementById('phoneWrap').style.display = isCall ? 'block' : 'none';
+      document.getElementById('urlWrap').classList.toggle('field-dimmed', isCall);
+      document.getElementById('campaignWrap').classList.toggle('field-dimmed', isCall);
+      document.getElementById('urlHint').innerText = isCall
+        ? '(необязательно для звонков; если укажете — те же правила по доменам)'
+        : '(протокол можно не указывать; допустим также домен эхолеса.рф — домены: sever-group.ru, double-double.ru, literaturny.ru, эхолеса.рф, dius-mfk.ru)';
+      document.getElementById('campaignHint').innerText = isCall
+        ? '(необязательно для звонков; если укажете — одно слово латиницей)'
+        : '(одно слово латиницей: только буквы A-Z и цифры, без пробелов и разделителей)';
+    }
 
     function fillSimpleSelect(id, values) {
       var sel = document.getElementById(id);
       sel.innerHTML = '';
+      var placeholderOpt = document.createElement('option');
+      placeholderOpt.value = '';
+      placeholderOpt.text = PLACEHOLDER;
+      sel.appendChild(placeholderOpt);
       values.forEach(function (v) {
         var opt = document.createElement('option');
         opt.value = v;
         opt.text = v;
         sel.appendChild(opt);
       });
+      sel.value = '';
     }
 
     function numPrefix1(str) {
@@ -101,27 +298,63 @@
 
     function refreshIstochnik() {
       var razdel = document.getElementById('razdel').value;
+      var istochnikSel = document.getElementById('istochnik');
+      if (!razdel) {
+        fillSimpleSelect('istochnik', []);
+        istochnikSel.disabled = true;
+        return;
+      }
       var prefix = numPrefix1(razdel);
       var filtered = GEN_DATA.istochnik.filter(function (v) {
         return numPrefix1(v) === prefix;
       });
       fillSimpleSelect('istochnik', filtered);
+      istochnikSel.disabled = false;
     }
 
     function refreshAnalitika() {
       var istochnik = document.getElementById('istochnik').value;
+      var analitikaSel = document.getElementById('analitika');
+      if (!istochnik) {
+        fillSimpleSelect('analitika', []);
+        analitikaSel.disabled = true;
+        refreshMedium();
+        return;
+      }
       var prefix = numPrefix2(istochnik);
       var filtered = GEN_DATA.analitika.filter(function (a) {
         return numPrefix2(a.label) === prefix;
       });
       var sel = document.getElementById('analitika');
       sel.innerHTML = '';
+      var placeholderOpt = document.createElement('option');
+      placeholderOpt.value = '';
+      placeholderOpt.text = PLACEHOLDER;
+      sel.appendChild(placeholderOpt);
       filtered.forEach(function (a) {
         var opt = document.createElement('option');
         opt.value = a.label;
         opt.text = a.label;
         sel.appendChild(opt);
       });
+      sel.value = '';
+      analitikaSel.disabled = false;
+      refreshMedium();
+    }
+
+    function refreshMedium() {
+      var label = document.getElementById('analitika').value;
+      var a = GEN_DATA.analitika.filter(function (x) { return x.label === label; })[0];
+      var wrap = document.getElementById('mediumWrap');
+      var sel = document.getElementById('utmMedium');
+      var options = (a && a.mediumOptions) || [];
+      if (options.length > 1) {
+        wrap.style.display = 'block';
+        fillSimpleSelect('utmMedium', options);
+      } else {
+        wrap.style.display = 'none';
+        sel.innerHTML = '';
+      }
     }
 
     function showError(err) {
@@ -132,6 +365,159 @@
       box.innerText = err.message || err;
     }
 
+    function openInSource() {
+      var filters = {
+        tip: document.getElementById('tip').value,
+        razdel: document.getElementById('razdel').value,
+        istochnik: document.getElementById('istochnik').value,
+        analitika: document.getElementById('analitika').value,
+        proekt: document.getElementById('proekt').value,
+        ra: document.getElementById('ra').value,
+      };
+      var hasAny = Object.keys(filters).some(function (k) { return filters[k]; });
+      if (!hasAny) {
+        showError('Выберите хотя бы одно поле, чтобы посмотреть существующие значения');
+        return;
+      }
+      var btn = document.getElementById('lookupBtn');
+      var oldText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Ищу...';
+      google.script.run
+        .withSuccessHandler(function (res) {
+          btn.disabled = false;
+          btn.innerText = oldText;
+          showSearchResults(res);
+        })
+        .withFailureHandler(function (err) {
+          btn.disabled = false;
+          btn.innerText = oldText;
+          showError(err);
+        })
+        .searchSourceRowsMulti(filters);
+    }
+
+    var LAST_SEARCH_ROWS = [];
+
+    function showSearchResults(res) {
+      var box = document.getElementById('searchResults');
+      LAST_SEARCH_ROWS = res.rows;
+      if (!res.rows.length) {
+        box.innerHTML = '<div class="sr-header">Совпадений по выбранным полям не найдено' +
+          '<span class="sr-close" onclick="closeSearchResults()">×</span></div>';
+        box.style.display = 'block';
+        return;
+      }
+      var html = '<div class="sr-header">Найдено: ' + res.count + (res.count >= 30 ? '+' : '') +
+        ' (показаны первые ' + res.rows.length + ')' +
+        '<span class="sr-close" onclick="closeSearchResults()">×</span></div>';
+      html += '<table class="sr-table"><thead><tr>' +
+        '<th>Раздел</th><th>Источник</th><th>Аналитика</th><th>ЖК</th><th>UTM_term</th><th>Телефон</th><th>URL с UTM</th>' +
+        '</tr></thead><tbody>';
+      res.rows.forEach(function (r, i) {
+        html += '<tr>' +
+          '<td>' + escapeHtml(r.razdel) + '</td>' +
+          '<td>' + escapeHtml(r.istochnik) + '</td>' +
+          '<td>' + escapeHtml(r.analitika) + '</td>' +
+          '<td>' + escapeHtml(r.zhk) + '</td>' +
+          '<td>' + escapeHtml(r.utmTerm) + '</td>' +
+          '<td>' + cellWithCopy(r.phone, i, 'phone') + '</td>' +
+          '<td class="sr-url">' + cellWithCopy(r.urlUtm, i, 'urlUtm') + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+      box.innerHTML = html;
+      box.style.display = 'block';
+    }
+
+    function cellWithCopy(value, rowIndex, field) {
+      if (!value) return '';
+      return '<span class="sr-cell-value">' + escapeHtml(value) + '</span>' +
+        '<button type="button" class="copy-cell-btn" title="Скопировать" ' +
+        'onclick="copySearchCell(' + rowIndex + ', \'' + field + '\', this)">📋</button>';
+    }
+
+    function copySearchCell(rowIndex, field, btn) {
+      var value = LAST_SEARCH_ROWS[rowIndex][field];
+      if (!value) return;
+      navigator.clipboard.writeText(String(value)).then(function () {
+        var old = btn.innerText;
+        btn.innerText = '✓';
+        setTimeout(function () { btn.innerText = old; }, 1200);
+      });
+    }
+
+    function closeSearchResults() {
+      document.getElementById('searchResults').style.display = 'none';
+    }
+
+    var structureTreeBuilt = false;
+
+    function toggleGuide() {
+      var panel = document.getElementById('guidePanel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function openSourceSheet() {
+      if (!GEN_DATA || !GEN_DATA.sourceSheetUrl) {
+        showError('Ссылка на таблицу пока не загрузилась, подождите секунду и попробуйте снова');
+        return;
+      }
+      window.open(GEN_DATA.sourceSheetUrl, '_blank');
+    }
+
+    function toggleStructureTree() {
+      var box = document.getElementById('structureTree');
+      if (box.style.display === 'block') {
+        box.style.display = 'none';
+        return;
+      }
+      if (!structureTreeBuilt) {
+        box.innerHTML = buildStructureTreeHtml();
+        structureTreeBuilt = true;
+      }
+      box.style.display = 'block';
+    }
+
+    function buildStructureTreeHtml() {
+      var html = '<div class="tree-header">Структура: Тип → Раздел → Источник → Площадка' +
+        '<span class="sr-close" onclick="document.getElementById(\'structureTree\').style.display=\'none\'">×</span></div>';
+      html += '<div class="tree-body">';
+
+      GEN_DATA.tip.forEach(function (tip) {
+        html += '<details><summary>' + escapeHtml(tip) + ' <span class="tree-count">(' + GEN_DATA.razdel.length + ' раздел.)</span></summary>';
+        GEN_DATA.razdel.forEach(function (razdel) {
+          var razdelPrefix = numPrefix1(razdel);
+          var istochniki = GEN_DATA.istochnik.filter(function (v) { return numPrefix1(v) === razdelPrefix; });
+          html += '<details><summary>' + escapeHtml(razdel) + ' <span class="tree-count">(' + istochniki.length + ')</span></summary>';
+          istochniki.forEach(function (istochnik) {
+            var istPrefix = numPrefix2(istochnik);
+            var analitiki = GEN_DATA.analitika.filter(function (a) { return numPrefix2(a.label) === istPrefix; });
+            html += '<details><summary>' + escapeHtml(istochnik) + ' <span class="tree-count">(' + analitiki.length + ')</span></summary>';
+            if (analitiki.length) {
+              analitiki.forEach(function (a) {
+                html += '<div class="tree-leaf">' + escapeHtml(a.label) + '</div>';
+              });
+            } else {
+              html += '<div class="tree-leaf tree-count">нет площадок</div>';
+            }
+            html += '</details>';
+          });
+          html += '</details>';
+        });
+        html += '</details>';
+      });
+
+      html += '</div>';
+      return html;
+    }
+
+    function escapeHtml(s) {
+      var div = document.createElement('div');
+      div.innerText = (s === null || s === undefined) ? '' : String(s);
+      return div.innerHTML;
+    }
+
     function submitForm() {
       document.getElementById('err').style.display = 'none';
       document.getElementById('result').style.display = 'none';
@@ -139,19 +525,63 @@
       var campaignWord = document.getElementById('campaignWord').value.replace(/\s+$/, '');
       document.getElementById('campaignWord').value = campaignWord;
 
+      var kategoria = document.getElementById('kategoria').value;
+      var isCallMode = kategoria === 'Звонки';
+
       var payload = {
         tip: document.getElementById('tip').value,
         razdel: document.getElementById('razdel').value,
         istochnik: document.getElementById('istochnik').value,
         analitika: document.getElementById('analitika').value,
+        utmMedium: document.getElementById('utmMedium').value || '',
         proekt: document.getElementById('proekt').value,
         ra: document.getElementById('ra').value,
+        kategoria: kategoria,
+        phone: document.getElementById('phone').value.trim(),
+        proektKoltach: document.getElementById('proektKoltach').value.trim(),
         campaignWord: campaignWord,
         urlBase: document.getElementById('urlBase').value.trim(),
+        otvetstvenny: document.getElementById('otvetstvenny').value,
       };
 
-      if (!payload.urlBase) { showError('Укажите URL'); return; }
-      if (!payload.campaignWord) { showError('Укажите название кампании'); return; }
+      var requiredSelects = [
+        { key: 'tip', label: 'Тип обращения' },
+        { key: 'razdel', label: 'Раздел' },
+        { key: 'istochnik', label: 'Источник обращения' },
+        { key: 'analitika', label: 'Площадка размещения' },
+        { key: 'proekt', label: 'Проект' },
+        { key: 'ra', label: 'Ответственный за площадку (РА)' },
+        { key: 'otvetstvenny', label: 'Ответственный за utm-метку' },
+      ];
+      for (var i = 0; i < requiredSelects.length; i++) {
+        if (!payload[requiredSelects[i].key]) {
+          showError('Заполните поле: ' + requiredSelects[i].label);
+          return;
+        }
+      }
+      if (document.getElementById('mediumWrap').style.display !== 'none' && !payload.utmMedium) {
+        showError('Выберите тип размещения (поле 4a)');
+        return;
+      }
+
+      if (isCallMode) {
+        if (!payload.phone) { showError('Укажите номер телефона'); return; }
+        if (/\s/.test(payload.phone)) { showError('Номер телефона не должен содержать пробелов'); return; }
+        if (!payload.proektKoltach) { showError('Укажите "Проект в Колтач"'); return; }
+      } else if (!payload.urlBase) {
+        showError('Укажите URL');
+        return;
+      }
+
+      if (payload.urlBase && /\s/.test(payload.urlBase)) {
+        showError('URL не должен содержать пробелов. Проверьте ссылку — возможно, при копировании попал лишний пробел.');
+        return;
+      }
+      if (!payload.campaignWord && !isCallMode) { showError('Укажите название кампании'); return; }
+      if (payload.campaignWord && !/^[A-Za-z0-9]+$/.test(payload.campaignWord)) {
+        showError('Название кампании должно быть одним словом на латинице: только буквы A-Z и цифры, без пробелов, кириллицы, дефисов и подчёркиваний');
+        return;
+      }
 
       document.getElementById('submitBtn').disabled = true;
       document.getElementById('loading').style.display = 'block';
@@ -170,8 +600,19 @@
         }
 
         document.getElementById('rTerm').innerText = res.utmTerm;
-        document.getElementById('rCampaign').innerText = res.utmCampaign;
-        document.getElementById('rUrl').innerText = res.urlWithUtm;
+        document.getElementById('rCampaign').innerText = res.utmCampaign || '(не указана)';
+        if (res.phone) {
+          document.getElementById('rPhone').innerText = res.phone;
+          document.getElementById('rPhoneRow').style.display = 'block';
+        } else {
+          document.getElementById('rPhoneRow').style.display = 'none';
+        }
+        if (res.urlWithUtm) {
+          document.getElementById('rUrl').innerText = res.urlWithUtm;
+          document.getElementById('rUrlSection').style.display = 'block';
+        } else {
+          document.getElementById('rUrlSection').style.display = 'none';
+        }
         document.getElementById('result').style.display = 'block';
 
         if (res.reserveNotice && res.reserveNotice.notified) {
